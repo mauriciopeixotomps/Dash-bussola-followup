@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bússola de Follow-up — Studio Fiscal</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: #1F1F1F; color: #FDFDFD;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 20px 16px 60px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  header { margin-bottom: 24px; }
+  h1 { font-size: 1.25rem; margin: 0; color: #D5AE77; }
+  h2 { font-size: 1rem; margin: 0 0 10px; color: #D5AE77; }
+  .sub { color: #b8b3ad; font-size: 0.85rem; }
+  .card {
+    background: #322E2B; border-radius: 12px; padding: 18px;
+    margin-bottom: 16px; border: 1px solid #443f3a;
+  }
+  label.campo-label { display:block; font-size: 0.75rem; color: #b8b3ad; margin-bottom: 4px; }
+  select, input[type=text], input[type=number] {
+    width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #55504a;
+    background: #1F1F1F; color: #FDFDFD; font-size: 1rem; margin-bottom: 14px;
+  }
+  .campos-dias { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .campos-dias { grid-template-columns: 1fr; } }
+  .etapa-badge {
+    display:inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem;
+    background: #927245; color: #FDFDFD; margin-right: 8px;
+  }
+  .perfil-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+  @media (max-width: 480px) { .perfil-grid { grid-template-columns: 1fr; } }
+  button.perfil-btn {
+    padding: 12px 10px; border-radius: 10px; border: 1px solid #55504a; background: #1F1F1F;
+    color: #FDFDFD; font-size: 0.9rem; cursor: pointer; text-align: left;
+  }
+  button.perfil-btn .perfil-sub { display:block; font-size: 0.72rem; color: #b8b3ad; margin-top: 2px; }
+  button.perfil-btn.ativo { border-color: #D5AE77; background: #3a3229; }
+  .material-card { background: #2a2622; border-radius: 10px; padding: 14px; margin-top: 12px; border-left: 4px solid #D5AE77; }
+  .material-titulo { font-weight: 700; color: #D5AE77; margin-bottom: 6px; }
+  .material-msg { font-size: 0.9rem; color: #e6e2dc; white-space: pre-wrap; margin-bottom: 10px; }
+  .material-links a { color: #D5AE77; display:block; font-size: 0.85rem; margin-bottom: 4px; }
+  button.copiar {
+    padding: 8px 12px; border-radius: 8px; border: none; background: #927245; color: #FDFDFD;
+    font-size: 0.8rem; cursor: pointer;
+  }
+  .motivo { font-size: 0.78rem; color: #b8b3ad; margin-bottom: 10px; }
+  table.comparativo { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 8px; }
+  table.comparativo th, table.comparativo td { border: 1px solid #55504a; padding: 6px 8px; text-align: left; }
+  table.comparativo th { background: #3a3229; }
+  .vazio { color: #b8b3ad; font-size: 0.85rem; padding: 8px 0; }
+
+  .persona-box { background: #2a2622; border-radius: 10px; padding: 14px; margin-top: 12px; }
+  .persona-gancho { font-style: italic; color: #D5AE77; font-size: 0.9rem; margin-bottom: 10px; border-left: 3px solid #927245; padding-left: 10px; }
+  .persona-cols { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .persona-cols { grid-template-columns: 1fr; } }
+  .persona-cols h4 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: #b8b3ad; margin: 0 0 6px; }
+  .persona-cols ul { margin: 0; padding-left: 16px; font-size: 0.82rem; color: #e6e2dc; }
+  .persona-cols li { margin-bottom: 4px; }
+
+  #etapaGuia { font-size: 0.85rem; margin-top: 12px; }
+  #etapaGuia .portas { color: #b8b3ad; margin-bottom: 8px; }
+  #etapaGuia .portas b { color: #FDFDFD; }
+  .reuniao-cols { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  @media (max-width: 480px) { .reuniao-cols { grid-template-columns: 1fr; } }
+  .reuniao-cols .deve { color: #8fbf82; }
+  .reuniao-cols .nao-deve { color: #e08a5f; }
+  .reuniao-cols ul { margin: 4px 0 0; padding-left: 16px; }
+
+  .cadencia-item { padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; background: #2a2622; }
+  .cadencia-item.atual { border-left: 4px solid #D5AE77; background: #3a3229; }
+  .cadencia-quando { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: #D5AE77; }
+  .cadencia-assunto { font-weight: 600; margin: 2px 0 6px; }
+  .toggle-link { color: #D5AE77; font-size: 0.8rem; cursor: pointer; text-decoration: underline; display: inline-block; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🧭 Bússola de Follow-up</h1>
+    <div class="sub">Studio Fiscal — preencha os campos abaixo pra ver o material certo</div>
+  </header>
+
+  <div class="card">
+    <label class="campo-label">Etapa do negócio</label>
+    <select id="etapaSelect">
+      <option value="">Selecione a etapa...</option>
+    </select>
+
+    <div class="campos-dias">
+      <div>
+        <label class="campo-label">Dias parado nessa etapa</label>
+        <input type="number" id="diasParado" min="0" placeholder="0">
+      </div>
+      <div>
+        <label class="campo-label">Dias desde a 1ª reunião (CC1)</label>
+        <input type="number" id="diasReuniao" min="0" placeholder="opcional">
+      </div>
+    </div>
+
+    <label class="campo-label">Nome do lead (pra preencher as mensagens)</label>
+    <input type="text" id="nomeLead" placeholder="Ex: Marina">
+
+    <div id="etapaGuia"></div>
+  </div>
+
+  <div class="card">
+    <label class="campo-label">Persona do lead</label>
+    <div class="perfil-grid" id="perfilGrid"></div>
+    <div id="personaInfo"></div>
+  </div>
+
+  <div class="card" id="cadenciaCard"></div>
+  <div id="recomendacao"></div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
