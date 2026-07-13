@@ -347,13 +347,18 @@ export function ajustarPorCarteira(materiaisKeys, carteiraId) {
 // ============= MATRIZ etapa (bucket) x persona -> materiais sugeridos =============
 // Proposta inicial (2026-07-10, revisada com o Playbook de Expansão; ampliada em
 // 2026-07-14 pra diversificar as etapas de qualificação — antes todas caíam no mesmo
-// "pre" e sugeriam sempre Vídeo Institucional). Rebalanceada em 2026-07-14: auditei a
-// frequência de cada material nesta matriz e achei Vídeo Institucional/Comparativo/
-// Vídeos José Carlos/Onboarding em >60% das combinações, enquanto Vídeos sobre
-// Parceria nunca era sugerido (apesar de existir e falar direto com a persona
-// Bancário/Representante) e Depoimentos apareciam pouco — troquei vários usos
-// genéricos de Vídeo Institucional/Comparativo por materiais mais específicos por
-// persona daqui pra baixo. Ajustar conforme feedback real dos closers.
+// "pre" e sugeriam sempre Vídeo Institucional). Rebalanceada em 2026-07-14 (1ª vez):
+// achei Vídeo Institucional/Comparativo/Vídeos José Carlos/Onboarding em >60% das
+// combinações e troquei vários por materiais mais específicos, incluindo Vídeos sobre
+// Parceria/Depoimento de Parceiros pro perfil Bancário/Representante. **Corrigido no
+// mesmo dia, 2ª vez**: o usuário esclareceu que o foco do negócio é vender FRANQUIA,
+// não parceria — "não quer muito usar vídeo de parceria... mas cases de sucesso e
+// depoimentos de franqueado é bom usar". Tirei Vídeos sobre Parceria da matriz
+// principal (fica só como conteúdo da CADENCIA, que já tinha um toque fixo com ele) e
+// troquei Depoimento de Parceiros por Depoimento de Franqueados/Cases de Sucesso em
+// quase todos os usos, inclusive pro Bancário/Representante — mesmo esse perfil sendo
+// descrito no playbook como "ponte comercial", o material que sai por padrão pra ele
+// agora reforça o modelo de franquia, igual pras outras personas.
 export const RECOMMENDATIONS = {
   lead: {
     advogado: ['VIDEO_INSTITUCIONAL'],
@@ -364,43 +369,43 @@ export const RECOMMENDATIONS = {
   pre_qualificacao: {
     advogado: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
     contador: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
-    bancario: ['VIDEO_INSTITUCIONAL', 'VIDEOS_PARCERIA'],
+    bancario: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
     empresario: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
   },
   em_atendimento: {
     advogado: ['BLOG_POST', 'EBOOK'],
     contador: ['BLOG_POST', 'EBOOK'],
-    bancario: ['VIDEOS_PARCERIA', 'COMPARATIVO_CONCORRENCIA'],
+    bancario: ['CASES_DE_SUCESSO', 'COMPARATIVO_CONCORRENCIA'],
     empresario: ['COMPARATIVO_CONCORRENCIA', 'CASES_DE_SUCESSO'],
   },
   mql: {
     advogado: ['EBOOK', 'CASES_DE_SUCESSO'],
     contador: ['EBOOK', 'ATESTADO_CAPACIDADE'],
-    bancario: ['VIDEOS_PARCERIA', 'DEPOIMENTO_PARCEIROS'],
+    bancario: ['CASES_DE_SUCESSO', 'DEPOIMENTO_FRANQUEADOS'],
     empresario: ['CASES_DE_SUCESSO', 'COMPARATIVO_CONCORRENCIA'],
   },
   sql: {
     advogado: ['EBOOK', 'CASES_DE_SUCESSO'],
     contador: ['EBOOK', 'BLOG_POST'],
-    bancario: ['VIDEOS_PARCERIA', 'COMPARATIVO_CONCORRENCIA'],
+    bancario: ['CASES_DE_SUCESSO', 'COMPARATIVO_CONCORRENCIA'],
     empresario: ['CASES_DE_SUCESSO', 'COMPARATIVO_CONCORRENCIA'],
   },
   oportunidade: {
     advogado: ['CASES_DE_SUCESSO', 'DEPOIMENTO_FRANQUEADOS'],
     contador: ['CASES_DE_SUCESSO', 'ATESTADO_CAPACIDADE'],
-    bancario: ['DEPOIMENTO_PARCEIROS', 'COMPARATIVO_CONCORRENCIA'],
+    bancario: ['DEPOIMENTO_FRANQUEADOS', 'COMPARATIVO_CONCORRENCIA'],
     empresario: ['CASES_DE_SUCESSO', 'COMPARATIVO_CONCORRENCIA'],
   },
   oportunidade_quente: {
     advogado: ['DEPOIMENTO_FRANQUEADOS', 'VIDEOS_JOSE_CARLOS'],
     contador: ['ATESTADO_CAPACIDADE', 'VIDEOS_JOSE_CARLOS'],
-    bancario: ['DEPOIMENTO_PARCEIROS', 'COMPARATIVO_CONCORRENCIA'],
+    bancario: ['DEPOIMENTO_FRANQUEADOS', 'CASES_DE_SUCESSO'],
     empresario: ['DEPOIMENTO_FRANQUEADOS', 'VIDEOS_JOSE_CARLOS'],
   },
   proposta: {
     advogado: ['DEPOIMENTO_FRANQUEADOS', 'COMPARATIVO_CONCORRENCIA'],
     contador: ['COMPARATIVO_CONCORRENCIA', 'ATESTADO_CAPACIDADE'],
-    bancario: ['COMPARATIVO_CONCORRENCIA', 'DEPOIMENTO_PARCEIROS'],
+    bancario: ['COMPARATIVO_CONCORRENCIA', 'DEPOIMENTO_FRANQUEADOS'],
     empresario: ['COMPARATIVO_CONCORRENCIA', 'VIDEOS_JOSE_CARLOS'],
   },
   negociacao: {
@@ -431,7 +436,7 @@ export const LIMIAR_DIAS_ESTAGNADO = 7;
 export const REFORCO_ESTAGNACAO = {
   advogado: 'DEPOIMENTO_FRANQUEADOS',
   contador: 'ATESTADO_CAPACIDADE',
-  bancario: 'DEPOIMENTO_PARCEIROS',
+  bancario: 'DEPOIMENTO_FRANQUEADOS',
   empresario: 'VIDEOS_JOSE_CARLOS',
 };
 
@@ -468,7 +473,7 @@ export const CADENCIA = [
   { quando: 'D+2', dias: 2, assunto: 'Relatório do PJ360°', materialKey: null, mensagem: '[Nome], saiu o seu diagnóstico PJ360°: nossa IA já mapeou as oportunidades. Te envio aqui. Dá uma olhada e me diz o que achou?' },
   { quando: 'D+4', dias: 4, assunto: 'Vídeo José Carlos', materialKey: 'VIDEOS_JOSE_CARLOS', mensagem: '[Nome], separei algo especial: o fundador contando como construímos +R$ 16 bi em resultados. Vale 2 minutos. Depois me conta?' },
   { quando: 'Semana 2 · terça', dias: 9, assunto: 'Case de sucesso', materialKey: 'CASES_DE_SUCESSO', mensagem: '[Nome], olha esse case: resultado real para uma empresa parecida com as da sua carteira. Faz sentido para você?' },
-  { quando: 'Semana 2 · quinta', dias: 11, assunto: 'Vídeo do treinamento', materialKey: 'VIDEOS_PARCERIA', mensagem: '[Nome], todo sócio entra preparado: esse é o nosso treinamento. Posso te mostrar como seria o seu começo?' },
+  { quando: 'Semana 2 · quinta', dias: 11, assunto: 'Vídeo do treinamento', materialKey: 'ONBOARDING_FRANQUEADO', mensagem: '[Nome], todo sócio entra preparado: esse é o nosso treinamento. Posso te mostrar como seria o seu começo?' },
   { quando: 'Semana 3 · segunda', dias: 16, assunto: 'Print do plano financeiro', materialKey: null, mensagem: '[Nome], montei um resumo do seu plano financeiro. Bora marcar 15 minutos para eu te explicar?' },
   { quando: 'Semana 3 · sexta', dias: 20, assunto: 'Vídeo da sede', materialKey: 'VIDEO_INSTITUCIONAL', mensagem: '[Nome], quer conhecer a estrutura que vai operar com você? +300 especialistas. Quando vier, te recebo pessoalmente.' },
   { quando: 'Semana 4 · quarta', dias: 23, assunto: 'E-book: A Tempestade Perfeita', materialKey: 'EBOOK', mensagem: '[Nome], esse material é a sua cara: "A Tempestade Perfeita". Mostra a janela aberta agora. Já pensou em aproveitar com a gente?' },
