@@ -344,6 +344,82 @@ export function ajustarPorCarteira(materiaisKeys, carteiraId) {
   return [...new Set(out)];
 }
 
+// ============= COPY DINÂMICA (2026-07-14, pedido do usuário: "sugestões de copy mais
+// inteligentes") =============
+// Antes, cada categoria de material tinha UMA mensagem fixa (a "Mensagem sugestão" da
+// aba SUMÁRIO), igual pra qualquer persona/etapa/item. Agora a mensagem é montada em
+// cima do item real mais relevante pra essa persona/carteira (o primeiro depois de
+// `ordenarItens` no app.js) — puxa segmento/crédito recuperado de um Case de Sucesso
+// real, o nome do e-book certo, o assunto do post certo — em vez de uma frase genérica
+// que não muda nada entre um advogado e um empresário. Cai pra `mat.mensagem` (a
+// mensagem original da planilha) quando não há item específico pra citar (Comparativo é
+// uma tabela, não uma lista) ou quando a persona não tem um ângulo próprio definido.
+function primeiraLetraMaiuscula(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+// Ebooks vêm em CAIXA ALTA na planilha ("A TEMPESTADE PERFEITA...") — fica mais natural
+// numa mensagem de WhatsApp com capitalização de título.
+function tituloLegivel(nomeCaixaAlta) {
+  return nomeCaixaAlta
+    .toLowerCase()
+    .split(' ')
+    .map((w, i) => (i > 0 && w.length <= 2 ? w : primeiraLetraMaiuscula(w)))
+    .join(' ');
+}
+
+const COMPARATIVO_POR_PERSONA = {
+  bancario: 'preparei um comparativo mostrando os diferenciais do Grupo Studio — sem você precisar entender de tributário, é só olhar os números',
+  empresario: 'montei um comparativo pra você decidir com clareza onde o Grupo Studio se diferencia de quem já está no seu radar',
+  advogado: 'separei um comparativo técnico mostrando por que o Grupo Studio se destaca no mercado tributário',
+  contador: 'separei um comparativo mostrando os diferenciais do Grupo Studio pra quem já atua na área',
+};
+
+/**
+ * @param {string} materialKey
+ * @param {object} mat objeto de MATERIALS[materialKey]
+ * @param {object|null} itemPrincipal o item já ordenado (mais relevante) desse material,
+ *   ou null se `mat` não tem `itens` (ex: Comparativo, que é uma tabela)
+ * @param {string|null} personaId
+ * @returns {string} mensagem com [Nome] pra substituir, pronta pra copiar
+ */
+export function gerarMensagem(materialKey, mat, itemPrincipal, personaId) {
+  switch (materialKey) {
+    case 'CASES_DE_SUCESSO':
+      if (itemPrincipal?.segmento) {
+        const credito = itemPrincipal.credito || 'um valor expressivo';
+        return `[Nome], separei um case real: uma empresa do segmento de ${itemPrincipal.segmento} recuperou ${credito} com a gente. Faz sentido eu te mostrar como isso pode funcionar pra sua carteira?`;
+      }
+      break;
+    case 'DEPOIMENTO_FRANQUEADOS':
+      if (itemPrincipal?.segmento) {
+        return `[Nome], separei o depoimento de um(a) ${itemPrincipal.segmento.toLowerCase()} que já vive essa experiência com a gente. Vale a pena ouvir antes da nossa próxima conversa?`;
+      }
+      break;
+    case 'EBOOK':
+      if (itemPrincipal?.nome) {
+        return `[Nome], esse material parece ter sido feito pra você: "${tituloLegivel(itemPrincipal.nome)}". Dá uma olhada e me conta o que achou?`;
+      }
+      break;
+    case 'BLOG_POST':
+      if (itemPrincipal?.categoria) {
+        return `[Nome], vi um conteúdo sobre ${itemPrincipal.categoria} que conversa direto com o seu momento. Separei aqui — vale a leitura?`;
+      }
+      break;
+    case 'VIDEOS_JOSE_CARLOS':
+      if (itemPrincipal?.assunto) {
+        return `[Nome], separei uma conversa com o José Carlos, nosso fundador, sobre "${itemPrincipal.assunto}". Vale o tempo — depois me conta o que achou?`;
+      }
+      break;
+    case 'COMPARATIVO_CONCORRENCIA':
+      if (personaId && COMPARATIVO_POR_PERSONA[personaId]) {
+        return `[Nome], ${COMPARATIVO_POR_PERSONA[personaId]}. Dá uma olhada?`;
+      }
+      break;
+  }
+  return mat.mensagem;
+}
+
 // ============= MATRIZ etapa (bucket) x persona -> materiais sugeridos =============
 // Proposta inicial (2026-07-10, revisada com o Playbook de Expansão; ampliada em
 // 2026-07-14 pra diversificar as etapas de qualificação — antes todas caíam no mesmo

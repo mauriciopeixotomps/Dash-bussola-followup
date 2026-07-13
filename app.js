@@ -5,7 +5,7 @@
 // outros painéis do Grupo Studio (GitHub Pages).
 import {
   MATERIALS, STAGES, STAGE_BY_ID, PERSONAS, CARTEIRAS, PLAYBOOK_ETAPAS, CADENCIA,
-  recomendar, cadenciaAtual, segmentoKeywords, blogCategoriaKeywords, ebookPalavraChave,
+  recomendar, cadenciaAtual, segmentoKeywords, blogCategoriaKeywords, ebookPalavraChave, gerarMensagem,
 } from './materiais.js';
 
 let stageIdAtual = null;
@@ -147,11 +147,17 @@ function renderRecomendacao() {
 }
 
 function renderMaterialCard(key, mat) {
-  const linksHtml = mat.tabela ? renderTabela(mat.tabela) : renderItensLinks(mat, key);
+  // Mesma lista ordenada usada tanto pra escolher o item que vira a mensagem (o mais
+  // relevante pra essa persona/carteira) quanto pros links mostrados — assim a
+  // mensagem sempre fala do primeiro item da lista, não de um sorteio separado.
+  const itensOrdenados = mat.itens ? ordenarItens(mat, key) : null;
+  const itemPrincipal = itensOrdenados ? itensOrdenados[0] : null;
+  const mensagem = gerarMensagem(key, mat, itemPrincipal, personaAtual);
+  const linksHtml = mat.tabela ? renderTabela(mat.tabela) : renderLinksFromItens(itensOrdenados || []);
   const msgId = 'msg-' + key + '-' + Math.random().toString(36).slice(2, 8);
   return '<div class="material-card">' +
     '<div class="material-titulo">' + escapeHtml(mat.titulo) + '</div>' +
-    '<div class="material-msg" id="' + msgId + '">' + escapeHtml(aplicarNome(mat.mensagem)) + '</div>' +
+    '<div class="material-msg" id="' + msgId + '">' + escapeHtml(aplicarNome(mensagem)) + '</div>' +
     '<button class="copiar" onclick="window.copiarTexto(\'' + msgId + '\')">Copiar mensagem</button>' +
     linksHtml +
     '</div>';
@@ -194,7 +200,11 @@ function ordenarItens(mat, materialKey) {
 
 function renderItensLinks(mat, materialKey) {
   if (!mat.itens) return '';
-  const itens = ordenarItens(mat, materialKey);
+  return renderLinksFromItens(ordenarItens(mat, materialKey));
+}
+
+function renderLinksFromItens(itens) {
+  if (!itens.length) return '';
   return '<div class="material-links">' + itens.slice(0, 6).map(item => {
     const nome = item.nome || item.assunto || [item.local, item.segmento].filter(Boolean).join(' — ') || 'Material';
     return item.link
