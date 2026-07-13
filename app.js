@@ -5,7 +5,7 @@
 // outros painéis do Grupo Studio (GitHub Pages).
 import {
   MATERIALS, STAGES, STAGE_BY_ID, PERSONAS, CARTEIRAS, PLAYBOOK_ETAPAS, CADENCIA,
-  recomendar, cadenciaAtual, segmentoKeywords,
+  recomendar, cadenciaAtual, segmentoKeywords, blogCategoriaKeywords, ebookPalavraChave,
 } from './materiais.js';
 
 let stageIdAtual = null;
@@ -157,25 +157,44 @@ function renderMaterialCard(key, mat) {
     '</div>';
 }
 
-// Prioriza itens cujo campo "segmento" case com a carteira de clientes e/ou a persona
-// escolhidas (ex: carteira "Indústria" + Cases de Sucesso -> mostra primeiro os cases
-// de empresas industriais) — deixa a prova social mais relevante pro lead específico.
-const MATERIAIS_COM_SEGMENTO = new Set(['CASES_DE_SUCESSO', 'DEPOIMENTO_FRANQUEADOS']);
+// Ordena um array colocando primeiro quem casa com pelo menos uma keyword num campo.
+function priorizarPorKeyword(itens, keywords, campo) {
+  if (!keywords.length) return itens;
+  return [...itens].sort((a, b) => {
+    const am = keywords.some(k => (a[campo] || '').includes(k)) ? 0 : 1;
+    const bm = keywords.some(k => (b[campo] || '').includes(k)) ? 0 : 1;
+    return am - bm;
+  });
+}
+
+function ordenarItens(mat, materialKey) {
+  const itens = mat.itens;
+  if (materialKey === 'CASES_DE_SUCESSO' || materialKey === 'DEPOIMENTO_FRANQUEADOS') {
+    // Segmento do case/depoimento casando com a carteira de clientes e/ou a persona
+    // escolhidas (ex: carteira "Indústria" -> mostra primeiro cases de empresas
+    // industriais) — deixa a prova social mais relevante pro lead específico.
+    return priorizarPorKeyword(itens, segmentoKeywords(personaAtual, carteiraAtual), 'segmento');
+  }
+  if (materialKey === 'BLOG_POST') {
+    // Assunto do post casando com a persona/carteira (ex: persona "Advogado" -> prioriza
+    // "Tributário e Contencioso Fiscal"; carteira "Agronegócio" -> prioriza posts de
+    // Agronegócio). Sem casamento nenhum, embaralha pra não travar sempre nos mesmos 6
+    // de 285 posts.
+    const keywords = blogCategoriaKeywords(personaAtual, carteiraAtual);
+    const ordenado = priorizarPorKeyword(itens, keywords, 'categoria');
+    return keywords.length ? ordenado : [...ordenado].sort(() => Math.random() - 0.5);
+  }
+  if (materialKey === 'EBOOK') {
+    // Nome do e-book casando com palavras-chave da persona (ex: "ADVOGADOS E CONTADORES"
+    // -> prioriza pra quem é advogado/contador).
+    return priorizarPorKeyword(itens, ebookPalavraChave(personaAtual), 'nome');
+  }
+  return itens;
+}
 
 function renderItensLinks(mat, materialKey) {
   if (!mat.itens) return '';
-  let itens = mat.itens;
-  const keywords = segmentoKeywords(personaAtual, carteiraAtual);
-  if (keywords.length && MATERIAIS_COM_SEGMENTO.has(materialKey)) {
-    itens = [...itens].sort((a, b) => {
-      const am = keywords.some(k => (a.segmento || '').includes(k)) ? 0 : 1;
-      const bm = keywords.some(k => (b.segmento || '').includes(k)) ? 0 : 1;
-      return am - bm;
-    });
-  } else if (materialKey === 'BLOG_POST') {
-    // Sem segmento pra priorizar — embaralha pra não mostrar sempre os mesmos 6 posts.
-    itens = [...itens].sort(() => Math.random() - 0.5);
-  }
+  const itens = ordenarItens(mat, materialKey);
   return '<div class="material-links">' + itens.slice(0, 6).map(item => {
     const nome = item.nome || item.assunto || [item.local, item.segmento].filter(Boolean).join(' — ') || 'Material';
     return item.link

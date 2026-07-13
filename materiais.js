@@ -261,6 +261,68 @@ export function segmentoKeywords(personaId, carteiraId) {
   return kws;
 }
 
+// ============= SELEÇÃO AUTOMÁTICA DENTRO DE BLOG POST E E-BOOK =============
+// Antes disso, "Blog Post" e "E-book" eram tratados como categorias únicas — o closer
+// via sempre a mesma lista (ou uma aleatória), sem relação com a persona/carteira. A
+// aba BLOG POSTS tem 285 posts, cada um com um "Assunto" que na prática funciona como
+// categoria temática (ex: "Agronegócio", "Holding e Planejamento Patrimonial") — e os
+// 4 e-books têm nomes autoexplicativos ("...PARA ADVOGADOS E CONTADORES"). Em vez de eu
+// curar manualmente qual post/e-book mostrar pra cada combinação (o que não escala e é
+// exatamente o "raciocínio humano" que o usuário pediu pra tirar do caminho), essas
+// duas funções casam AUTOMATICAMENTE o texto real de cada item com palavras-chave de
+// persona/carteira — se a planilha ganhar um novo post/e-book com um assunto/nome que
+// já bate em alguma dessas palavras-chave, ele já entra no jogo sozinho, sem precisar
+// eu tocar no código.
+const BLOG_CATEGORIA_POR_PERSONA = {
+  advogado: ['Tributário e Contencioso Fiscal', 'Reforma Tributária', 'Holding e Planejamento Patrimonial'],
+  contador: ['Tributário e Contencioso Fiscal', 'Reforma Tributária', 'Gestão Financeira e Crédito'],
+  bancario: ['Gestão Financeira e Crédito', 'Fusões e Aquisições', 'Estratégia Empresarial'],
+  empresario: ['Estratégia Empresarial', 'Fusões e Aquisições', 'Holding e Planejamento Patrimonial', 'Gestão Financeira e Crédito'],
+};
+
+const BLOG_CATEGORIA_POR_CARTEIRA = {
+  agro: ['Agronegócio'],
+  produtor_rural: ['Agronegócio'],
+  industria: ['Energia e Eficiência Energética', 'Estratégia Empresarial'],
+  comercio: ['Estratégia Empresarial', 'Gestão Financeira e Crédito'],
+  servicos: ['Estratégia Empresarial'],
+  pf: ['Holding e Planejamento Patrimonial'],
+};
+
+/**
+ * @param {string|null} personaId
+ * @param {string|null} carteiraId
+ * @returns {string[]} categorias (do campo "Assunto" da aba BLOG POSTS) mais relevantes
+ */
+export function blogCategoriaKeywords(personaId, carteiraId) {
+  const kws = [];
+  if (carteiraId && BLOG_CATEGORIA_POR_CARTEIRA[carteiraId]) kws.push(...BLOG_CATEGORIA_POR_CARTEIRA[carteiraId]);
+  if (personaId && BLOG_CATEGORIA_POR_PERSONA[personaId]) kws.push(...BLOG_CATEGORIA_POR_PERSONA[personaId]);
+  return kws;
+}
+
+// Palavras que, se aparecerem no NOME do e-book, indicam pra qual persona ele fala mais
+// diretamente — casamento por texto simples, não uma lista fixa de "e-book X pra
+// persona Y" (cresce sozinho se a planilha ganhar um e-book novo com nome parecido).
+const EBOOK_PALAVRA_POR_PERSONA = {
+  advogado: ['ADVOGAD'],
+  contador: ['CONTADOR', 'CONTÁBIL'],
+};
+// Palavras técnicas genéricas (tributário) relevantes pras duas personas técnicas.
+const EBOOK_PALAVRAS_TECNICAS = ['TRIBUTÁ'];
+
+/**
+ * @param {string|null} personaId
+ * @returns {string[]} palavras-chave (maiúsculas) pra casar contra o nome do e-book
+ */
+export function ebookPalavraChave(personaId) {
+  const kws = [...EBOOK_PALAVRAS_TECNICAS];
+  if (personaId && (personaId === 'advogado' || personaId === 'contador')) {
+    kws.push(...(EBOOK_PALAVRA_POR_PERSONA[personaId] || []));
+  }
+  return kws;
+}
+
 /**
  * Ajusta a lista de materiais sugeridos conforme a carteira de clientes do lead:
  * - sem carteira ainda: prova social por segmento não faz sentido — reforça com
@@ -285,8 +347,13 @@ export function ajustarPorCarteira(materiaisKeys, carteiraId) {
 // ============= MATRIZ etapa (bucket) x persona -> materiais sugeridos =============
 // Proposta inicial (2026-07-10, revisada com o Playbook de Expansão; ampliada em
 // 2026-07-14 pra diversificar as etapas de qualificação — antes todas caíam no mesmo
-// "pre" e sugeriam sempre Vídeo Institucional) — ajustar conforme feedback real dos
-// closers.
+// "pre" e sugeriam sempre Vídeo Institucional). Rebalanceada em 2026-07-14: auditei a
+// frequência de cada material nesta matriz e achei Vídeo Institucional/Comparativo/
+// Vídeos José Carlos/Onboarding em >60% das combinações, enquanto Vídeos sobre
+// Parceria nunca era sugerido (apesar de existir e falar direto com a persona
+// Bancário/Representante) e Depoimentos apareciam pouco — troquei vários usos
+// genéricos de Vídeo Institucional/Comparativo por materiais mais específicos por
+// persona daqui pra baixo. Ajustar conforme feedback real dos closers.
 export const RECOMMENDATIONS = {
   lead: {
     advogado: ['VIDEO_INSTITUCIONAL'],
@@ -297,31 +364,31 @@ export const RECOMMENDATIONS = {
   pre_qualificacao: {
     advogado: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
     contador: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
-    bancario: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
+    bancario: ['VIDEO_INSTITUCIONAL', 'VIDEOS_PARCERIA'],
     empresario: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
   },
   em_atendimento: {
     advogado: ['BLOG_POST', 'EBOOK'],
     contador: ['BLOG_POST', 'EBOOK'],
-    bancario: ['COMPARATIVO_CONCORRENCIA', 'VIDEO_INSTITUCIONAL'],
+    bancario: ['VIDEOS_PARCERIA', 'COMPARATIVO_CONCORRENCIA'],
     empresario: ['COMPARATIVO_CONCORRENCIA', 'CASES_DE_SUCESSO'],
   },
   mql: {
     advogado: ['EBOOK', 'CASES_DE_SUCESSO'],
     contador: ['EBOOK', 'ATESTADO_CAPACIDADE'],
-    bancario: ['COMPARATIVO_CONCORRENCIA', 'DEPOIMENTO_PARCEIROS'],
+    bancario: ['VIDEOS_PARCERIA', 'DEPOIMENTO_PARCEIROS'],
     empresario: ['CASES_DE_SUCESSO', 'COMPARATIVO_CONCORRENCIA'],
   },
   sql: {
-    advogado: ['VIDEO_INSTITUCIONAL', 'EBOOK'],
-    contador: ['VIDEO_INSTITUCIONAL', 'EBOOK'],
-    bancario: ['VIDEO_INSTITUCIONAL', 'COMPARATIVO_CONCORRENCIA'],
-    empresario: ['VIDEO_INSTITUCIONAL', 'COMPARATIVO_CONCORRENCIA'],
+    advogado: ['EBOOK', 'CASES_DE_SUCESSO'],
+    contador: ['EBOOK', 'BLOG_POST'],
+    bancario: ['VIDEOS_PARCERIA', 'COMPARATIVO_CONCORRENCIA'],
+    empresario: ['CASES_DE_SUCESSO', 'COMPARATIVO_CONCORRENCIA'],
   },
   oportunidade: {
-    advogado: ['CASES_DE_SUCESSO', 'EBOOK'],
+    advogado: ['CASES_DE_SUCESSO', 'DEPOIMENTO_FRANQUEADOS'],
     contador: ['CASES_DE_SUCESSO', 'ATESTADO_CAPACIDADE'],
-    bancario: ['COMPARATIVO_CONCORRENCIA', 'VIDEO_INSTITUCIONAL'],
+    bancario: ['DEPOIMENTO_PARCEIROS', 'COMPARATIVO_CONCORRENCIA'],
     empresario: ['CASES_DE_SUCESSO', 'COMPARATIVO_CONCORRENCIA'],
   },
   oportunidade_quente: {
