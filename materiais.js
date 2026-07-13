@@ -1,195 +1,13 @@
 /**
- * Conteúdo extraído da planilha "MATERIAIS PARA FOLLOW UP" (marketing, Grupo Studio)
- * em 2026-07-10: https://docs.google.com/spreadsheets/d/1NIJX16NVanV9llT1H93YEw1Y5LhGYu_aGT7aj1xjPCI
- *
- * A planilha é atualizada com frequência pelo marketing — não há sync automático.
- * Quando ela mudar, reler as abas e atualizar este arquivo manualmente, depois
- * `wrangler deploy`.
+ * Regras de negócio da Bússola de Follow-up (etapas, personas, matriz de recomendação,
+ * cadência, carteira de clientes). O conteúdo real dos materiais (links, mensagens,
+ * cases) vem de materials-data.js, GERADO AUTOMATICAMENTE a partir da planilha pública
+ * do marketing (build_materiais.py, rodado via GitHub Actions sempre que uma linha nova
+ * é adicionada — ver .github/workflows/update.yml). Este arquivo aqui é escrito à mão e
+ * não é sobrescrito pelo sync.
  */
-
-export const MATERIALS = {
-  EBOOK: {
-    titulo: 'E-book',
-    mensagem: 'Aqui estão os e-books de autoria do Grupo Studio com conteúdo rico e aprofundado sobre os temas que mais impactam o seu negócio, totalmente gratuitos para você acessar agora.',
-    itens: [
-      { nome: 'A Tempestade Perfeita para Advogados e Contadores', link: 'https://drive.google.com/file/d/1CFy1dqIsLnPCsSB-k8yckFAgbayuEgxL/view?usp=drive_link' },
-      { nome: 'Como Implementar a Área Tributária no seu Escritório', link: 'https://drive.google.com/file/d/1VA6reXAgkSXcqW_I9B7yKSA0XnjHmp_e/view?usp=drive_link' },
-      { nome: 'Manual Completo Novo Tributário', link: 'https://drive.google.com/file/d/1TgAvF9S5DdUUvhWPFpORDqlEnTy0n0pT/view?usp=sharing' },
-      { nome: 'Lei do Bem', link: 'https://drive.google.com/file/d/1nHuHlssxFPUfTvxqlw_mx2Zu2RO4H0J1/view?usp=sharing' },
-    ],
-  },
-
-  CASES_DE_SUCESSO: {
-    titulo: 'Cases de Sucesso',
-    mensagem: 'Apresento a você cases de sucesso do Grupo Studio onde você acompanha de forma integral o que é o nosso padrão de entrega, resultados como esses acontecem todos os dias aqui dentro.',
-    itens: [
-      { local: 'Alagoas - AL', segmento: 'Indústria Alimentícia', faturamento: 'R$ 13.000.000,00', credito: 'R$ 1.170.607,32', link: 'https://drive.google.com/file/d/1PEjCAxLigTFpCVvxcBqStqeatyZW23nr/view' },
-      { local: 'Araguaiana - TO', segmento: 'Indústria Alimentícia', faturamento: 'R$ 20.128.046,86', credito: 'R$ 2.019.174,90', link: 'https://drive.google.com/file/d/1mhtjzUcr1t0nX1-PQkW54yFgBTwCz6yv/view' },
-      { local: 'Belo Horizonte - MG', segmento: 'Concessionária', faturamento: 'R$ 88.000.000,00', credito: 'R$ 1.782.934,32', link: 'https://drive.google.com/file/d/1iEEnVhKRbHXHboDjrr9wbv5yzvjbz88W/view' },
-      { local: 'Belo Horizonte - MG', segmento: 'Serviços em Geral', faturamento: 'R$ 38.928.724,34', credito: 'R$ 1.767.072,60', link: 'https://drive.google.com/file/d/1lihedj5XcnE6jFzGFj9zlXzvSZAdSCNZ/view' },
-      { local: 'Blumenau - SC', segmento: 'Atacadista', faturamento: 'R$ 35.237.634,88', credito: 'R$ 730.103,74', link: 'https://drive.google.com/file/d/1uK8eaBkNt8hlgkava4omgtRWjsnSBwjk/view' },
-      { local: 'Brasília - DF', segmento: 'Tecnologia', faturamento: 'R$ 13.314.984,40', credito: 'R$ 1.583.787,17', link: 'https://drive.google.com/file/d/1fDm8sDEMUC0ywGRHcVBvQGrZtPNng1Xe/view' },
-      { local: 'Catanduvas - SC', segmento: 'Indústria', faturamento: 'R$ 21.980.102,62', credito: 'R$ 810.534,84', link: 'https://drive.google.com/file/d/1kyW46688dd3S6_vTHNXcuryBV80wQ_gT/view' },
-      { local: 'Cascavel - PR', segmento: 'Atacadista', faturamento: 'R$ 71.522.490,58', credito: 'R$ 412.918,50', link: 'https://drive.google.com/file/d/1_b1LAcaBrpejlM0OOOZhpDjHf9soE4Co/view' },
-      { local: 'Catanduvas - SC', segmento: 'Indústria', faturamento: 'R$ 21.980.102,62', credito: 'R$ 344.081,77', link: 'https://drive.google.com/file/d/1Xw9QgbSI7_tPDwOp_BxT1fBdiEW5asxs/view' },
-      { local: 'Caxias do Sul - RS', segmento: 'Indústria de Sucos', faturamento: 'R$ 56.263.000,00', credito: 'R$ 4.051.964,83', link: 'https://drive.google.com/file/d/1RUD3S91gSfSH1GY2EB4KPFwXMBQtfnbT/view' },
-      { local: 'Caxias do Sul - RS', segmento: 'Indústria de Sucos', faturamento: 'R$ 56.262.437,20', credito: 'R$ 1.442.698,34', link: 'https://drive.google.com/file/d/1Tqpxwxc28HbUMMm-s9lO3TU2wIqu1SO1/view' },
-      { local: 'Concórdia - SC', segmento: 'Varejista', faturamento: 'R$ 8.058.228,61', credito: 'R$ 409.890,69', link: 'https://drive.google.com/file/d/1gkU7mJlM7-go669kA5zqTk-4AplrZd9-/view' },
-      { local: 'Curitiba - PR', segmento: 'Atacadista', faturamento: 'R$ 15.303.174,77', credito: 'R$ 1.640.848,75', link: 'https://drive.google.com/file/d/1MzJAfK_c3a46QzUH1IlM0ssgzkx_jh-y/view' },
-      { local: 'Embu das Artes - SP', segmento: 'Indústria', faturamento: 'R$ 62.276.409,72', credito: 'R$ 820.203,55', link: 'https://drive.google.com/file/d/1qU6RS90tFz8hiProijO7vxCTjQbT7CTl/view' },
-      { local: 'Embu das Artes - SP', segmento: 'Indústria', faturamento: 'R$ 62.276.409,72', credito: 'R$ 1.241.028,63', link: 'https://drive.google.com/file/d/1zfHVQYevKxQmYfg-SF57Ae2rrIyrJzst/view' },
-      { local: 'Formiga - MG', segmento: 'Atacadista', faturamento: 'R$ 15.434.321,59', credito: 'R$ 653.798,88', link: 'https://drive.google.com/file/d/1gN3j5AKf_pVdnToBRiqeEJxxFPIQExbK/view' },
-      { local: 'Imperatriz - MA', segmento: 'Serviço', faturamento: 'R$ 8.000.000,00', credito: 'R$ 7.839.618,13', link: 'https://drive.google.com/file/d/1dgvA6bUG6FkmyAa7YPLq7QJP7iOGMS4t/view' },
-      { local: 'Itaqui - RS', segmento: 'Varejista', faturamento: 'R$ 32.021.163,19', credito: 'R$ 12.710.195,20', link: 'https://drive.google.com/file/d/1-xU1FNevo-2qVZ7Hd7DCAxUkbd-wAa-M/view' },
-      { local: 'João Pessoa - PB', segmento: 'Supermercado', faturamento: 'R$ 45.422.046,95', credito: 'R$ 3.767.874,24', link: 'https://drive.google.com/file/d/1xzHlTQ-NaTzfwtr8emeZ7ZOzNBQ9UZlq/view' },
-      { local: 'João Pessoa - PB', segmento: 'Supermercado', faturamento: 'R$ 45.422.046,95', credito: 'R$ 9.658.259,17', link: 'https://drive.google.com/file/d/1CeR7LlOaNk9GcuhTra_-SibkzOYQlBLW/view' },
-      { local: 'Joinville - SC', segmento: 'Indústria', faturamento: 'R$ 6.947.343,68', credito: 'R$ 537.411,70', link: 'https://drive.google.com/file/d/1wxj-QO4Kw1-e7f6nEVEdFI54gsChLZjo/view' },
-      { local: 'Jundiaí - SP', segmento: 'Autopeças', faturamento: 'R$ 55.982.018,20', credito: 'R$ 570.428,31', link: 'https://drive.google.com/file/d/1kTKVy3aKXmVVtT9dTj3hV3EueKUOpeY6/view' },
-      { local: 'Minas Gerais - MG', segmento: 'Indústria Alimentícia', faturamento: 'R$ 11.600.000,00', credito: 'R$ 186.906,97', link: 'https://drive.google.com/file/d/1V-zxgKwBFKfyIvyBtuK8b7AqWbZSWjOn/view' },
-      { local: 'Mogi das Cruzes - SP', segmento: 'Concessionária', faturamento: 'R$ 88.039.116,48', credito: 'R$ 919.250,74', link: 'https://drive.google.com/file/d/1VKthkiL6MdtVLQYi_L9aRpzz56wnQ_rE/view' },
-      { local: 'Nilópolis - RJ', segmento: 'Hospitalar', faturamento: 'R$ 358.930.039,38', credito: 'R$ 1.214.533,42', link: 'https://drive.google.com/file/d/1NECyF_9yqdqckkkNM5hhIOl497nRR1lF/view' },
-      { local: 'Palmas - TO', segmento: 'Comércio', faturamento: 'R$ 20.000.000,00', credito: 'R$ 836.590,00', link: 'https://drive.google.com/file/d/1pnBjX6fL0mmT-F81O-pyMTkPEMkBoAZt/view' },
-      { local: 'Pelotas - RS', segmento: 'Varejista', faturamento: 'R$ 4.117.664,06', credito: 'R$ 210.531,43', link: 'https://drive.google.com/file/d/1XqQ8JXRAk0HmluESGT62rdt3LOVfmHNu/view' },
-      { local: 'Rio Grande do Norte - RN', segmento: 'Hospitalar', faturamento: 'R$ 21.600.000,00', credito: 'R$ 1.215.000,00', link: 'https://drive.google.com/file/d/1xQPFSX9-0XmD_rHu-mjg65UgWW8jMCz2/view' },
-      { local: 'Sto Amaro da Imperatriz - SC', segmento: 'Varejista', faturamento: 'R$ 11.369.126,66', credito: 'R$ 934.031,72', link: 'https://drive.google.com/file/d/1CmvyaD2O68MfiXqQSHmKGwg0xw_hU7zG/view' },
-      { local: 'São Paulo - SP', segmento: 'Serviços em Geral', faturamento: 'R$ 1.446.383,91', credito: 'R$ 442.302,35', link: 'https://drive.google.com/file/d/103PaLtKCiSAZoQvBDxLX2ISA8k1whjMk/view' },
-      { local: 'São Paulo - SP', segmento: 'Serviços em Geral', faturamento: 'R$ 14.864.514,31', credito: 'R$ 494.238,34', link: 'https://drive.google.com/file/d/1BI6StPvHhk9CgrSemR_a44tdYb9is98-/view' },
-      { local: 'São Paulo - SP', segmento: 'Indústria Alimentícia', faturamento: 'R$ 22.000.000,00', credito: 'R$ 439.805,07', link: 'https://drive.google.com/file/d/1QXI6fe93xJs6RkxMuDD6YemLNgwNxQo7/view' },
-      { local: 'São Paulo - SP', segmento: 'Supermercadista', faturamento: 'R$ 422.515.007,80', credito: 'R$ 9.113.251,44', link: 'https://drive.google.com/file/d/1QcD7XUZdKxwA-PbG1NOG_kio2RkWGvg4/view' },
-      { local: 'São Paulo - SP', segmento: 'Atacadista', faturamento: 'R$ 381.094.794,87', credito: 'R$ 5.013.573,61', link: 'https://drive.google.com/file/d/1Sjlm1YftBjFKUXLYeBVkPYm81VzUpO_Y/view' },
-      { local: 'São Paulo - SP', segmento: 'Serviços em Geral', faturamento: 'R$ 33.583.811,53', credito: 'R$ 3.109.457,09', link: 'https://drive.google.com/file/d/1W7pe4hjJaZ8iTnIfgUYFel9xlGmpAXRB/view' },
-      { local: 'Seara - SC', segmento: 'Agrícola', faturamento: 'R$ 66.986.396,08', credito: 'R$ 535.324,71', link: 'https://drive.google.com/file/d/1AmFkDqmFNlbieOBe3E84IovkjzG2xcOQ/view' },
-      { local: 'Sobral - CE', segmento: 'Concessionária e Autopeças de Motos', faturamento: 'R$ 23.017.180,36', credito: 'R$ 203.228,77', link: 'https://drive.google.com/file/d/16k4kMe53z9cOHOlg1KDLYOjB9Xxi8FXw/view' },
-      { local: 'Sobral - CE', segmento: 'Concessionária', faturamento: 'R$ 33.774.222,21', credito: 'R$ 639.015,26', link: 'https://drive.google.com/file/d/1zTRWy4j0YFVvlG_wmRkRSdMW8ZSSi3ZX/view' },
-      { local: 'Taió - SC', segmento: 'Atacadista', faturamento: 'R$ 131.629.751,35', credito: 'R$ 2.484.015,62', link: 'https://drive.google.com/file/d/1MobCXOwDi8_iAY4ZyPVacZD-vhWoDRcT/view' },
-      { local: 'Tangará da Serra - MT', segmento: 'Transportadora', faturamento: 'R$ 131.629.751,35', credito: 'R$ 2.560.160,09', link: 'https://drive.google.com/file/d/15iBMHqiQYw3oqfhLZGZMJGddztNW7on_/view' },
-      { local: 'Tangará da Serra - MT', segmento: 'Transportadora', faturamento: 'R$ 131.629.751,35', credito: 'R$ 2.185.255,81', link: 'https://drive.google.com/file/d/1Mhn-j0KmqUeca0fQMv_ZWC3tgcLTGnoF/view' },
-      { local: 'Timóteo - MG', segmento: 'Serviços em Geral', faturamento: 'R$ 21.980.102,62', credito: 'R$ 724.434,83', link: 'https://drive.google.com/file/d/14Uy3qWWliasTEIef90nPtn_fn0PLaAJr/view' },
-      { local: 'Toledo - PR', segmento: 'Atacadista', faturamento: 'R$ 44.178.137,97', credito: 'R$ 1.354.838,91', link: 'https://drive.google.com/file/d/1Eyk8fYxzA0vxXWLrrLgjDd4UPi2gOlSg/view' },
-      { local: 'Toledo - PR', segmento: 'Atacadista', faturamento: 'R$ 44.178.137,97', credito: 'R$ 237.848,14', link: 'https://drive.google.com/file/d/12Z3TxkAU7TQ8l8b6PoTfWJGJTw6fabie/view' },
-      { local: 'Unaí - MG', segmento: 'Agroindústria', faturamento: 'R$ 261.857.341,34', credito: 'R$ 83.517.898,29', link: 'https://drive.google.com/file/d/1qxypj-BSCuUd3bI1bBRFlkfsDhQneort/view' },
-      { local: 'Viçosa - MG', segmento: 'Pet Shop', faturamento: 'R$ 7.161.205,40', credito: 'R$ 669.370,42', link: 'https://drive.google.com/file/d/125-f3GNoBN4fHNqPE47uSxDnZgfJ0Ngv/view' },
-      { local: 'Volta Redonda - RJ', segmento: 'Concessionária', faturamento: 'R$ 73.626.283,83', credito: 'R$ 1.707.930,62', link: 'https://drive.google.com/file/d/1FuA8vKklvVEU-TGciAfQh1upCIyLg2lR/view' },
-      { local: 'Volta Redonda - RJ', segmento: 'Serviços em Geral', faturamento: 'R$ 7.827.473,37', credito: 'R$ 218.357,06', link: 'https://drive.google.com/file/d/1W37Uvr1iRVp1KXBzatxZ7qpSvqsNoZxu/view' },
-    ],
-  },
-
-  ATESTADO_CAPACIDADE: {
-    titulo: 'Atestado de Capacidade',
-    mensagem: 'Estou enviando para você nossa revista de atestados que contempla inúmeras empresas que fazem parte da história do Grupo Studio e atestam a qualidade do que entregamos todos os dias:',
-    itens: [
-      { nome: 'Revista de Atestados de Capacidade (GS Digital)', link: 'https://drive.google.com/file/d/1JGgm9yRPcgIGNXGQOqnnvfPgrfILb1E9/view?usp=drive_link' },
-    ],
-  },
-
-  DEPOIMENTO_FRANQUEADOS: {
-    titulo: 'Depoimento de Franqueados',
-    mensagem: 'Ouça de quem já viveu essa experiência: nossos franqueados falam sobre o treinamento que receberam na fase inicial do contrato e o que esse suporte significou para o começo da sua jornada com o Grupo Studio.',
-    itens: [
-      { local: 'Brasília', segmento: 'Advogada', link: 'https://drive.google.com/file/d/1dHRmTQqsxnNf8_9PByn9jCZLM1q1iJ96/view?usp=sharing' },
-      { local: 'Minas Gerais', segmento: 'Advogada', link: 'https://drive.google.com/file/d/1jCI_8B8_23pfAXIfNzzUMIfuZMViAypR/view?usp=sharing' },
-      { local: 'Belo Horizonte', segmento: 'Empresário', link: 'https://drive.google.com/file/d/1HazgrEuT1vv2Mb3DaiIHpIqoCrMHAUXY/view?usp=sharing' },
-      { local: 'Campinas', segmento: 'Advogado', link: 'https://drive.google.com/file/d/1PCda21f7RAqpAnDw7aUXwrKiAdN8dvgr/view?usp=sharing' },
-      { local: 'São Paulo', segmento: 'Advogada', link: 'https://drive.google.com/file/d/1Bjp8-AHFmyP8pges1yItlEaMHObYv9L1/view?usp=sharing' },
-      { local: 'São Paulo', segmento: 'Advogada', link: 'https://drive.google.com/file/d/1U3XkfIx5wU6I-WQnTmfg6WVLI5idlTRB/view?usp=sharing' },
-      { local: 'São Paulo', segmento: 'Advogada', link: 'https://drive.google.com/file/d/1HH6IbnuGQ_ztZUnWER9CIVpBTbPiczFz/view?usp=sharing' },
-      { local: 'Pelotas', segmento: 'Empresário', link: 'https://drive.google.com/file/d/1ORhWtfsjEeOPi7g8CDJ8wXRILtL5BtGb/view?usp=sharing' },
-      { local: 'Florianópolis', segmento: 'Empresário', link: 'https://drive.google.com/file/d/1Ye0zI1sImH1qZZFxp4rDc7VOCignbuzU/view?usp=sharing' },
-      { local: 'Maringá', segmento: 'Administrador', link: 'https://drive.google.com/file/d/1LrlkF2JSEl1JICeQnmmhACg3eL4uygQE/view?usp=sharing' },
-      { local: null, segmento: 'Advogado', link: 'https://drive.google.com/file/d/1qTOM2jk9IgEW0b1XGrh1Bvlb-il_0OcL/view?usp=sharing' },
-      { local: null, segmento: 'Jornalista', link: 'https://drive.google.com/file/d/1gTVdQCw8JTNM2uDikZ7OGNKUd3Wm51U5/view?usp=sharing' },
-      { local: null, segmento: 'Engenheiro', link: 'https://drive.google.com/file/d/1ebFwbc5bMgOb8ADVKvRG-oXqd1E_hK9y/view?usp=sharing' },
-    ],
-  },
-
-  DEPOIMENTO_PARCEIROS: {
-    titulo: 'Depoimento de Parceiros',
-    mensagem: 'Ouça de quem já viveu essa experiência: nossos parceiros falam sobre o treinamento que receberam na fase inicial do contrato e o que esse suporte significou para o começo da sua jornada com o Grupo Studio.',
-    itens: [
-      { link: 'https://drive.google.com/file/d/1WaKxh0AFwqhb7ykogG0B2V3Zsk3BS63d/view?usp=sharing' },
-      { link: 'https://drive.google.com/file/d/1ALK7Uqndfr-DwGtWekQrrHPFOOHDo8jD/view?usp=sharing' },
-      { link: 'https://drive.google.com/file/d/1AcR8TC8pV4ixbBAfueeh-XYaOil-xAay/view?usp=sharing' },
-    ],
-  },
-
-  VIDEOS_PARCERIA: {
-    titulo: 'Vídeos sobre Parceria',
-    mensagem: 'Estou te enviando alguns vídeos curtos para que você entenda, de forma simples e prática, como funciona o modelo de parceria do Grupo Studio.',
-    itens: [
-      { assunto: 'Como funciona o modelo de negócio de parceria', link: 'https://www.youtube.com/watch?v=I0uQgKk57Gs&list=PLbAd3viRqde0&index=1&t=3s' },
-      { assunto: 'Para que serve o treinamento do parceiro', link: 'https://www.youtube.com/watch?v=ifly9Aa3Nfg&list=PLbAd3viRqde0&index=2' },
-      { assunto: 'Quanto você pode ganhar sendo parceiro', link: 'https://www.youtube.com/watch?v=ZqdLV81Aw48&list=PLbAd3viRqde0&index=3' },
-      { assunto: 'Tecnologia para auxiliar sua captação de clientes - PJ360', link: 'https://www.youtube.com/watch?v=UPepfux-F_Y&list=PLbAd3viRqde0&index=4' },
-      { assunto: 'Portfólio de soluções disponível para o parceiro', link: 'https://www.youtube.com/watch?v=iIM8PS-jsAw&list=PLbAd3viRqde0&index=5' },
-    ],
-  },
-
-  VIDEO_INSTITUCIONAL: {
-    titulo: 'Vídeo Institucional',
-    mensagem: 'Estou te enviando nosso vídeo institucional para que você conheça melhor a estrutura, a história e a atuação do Grupo Studio.',
-    itens: [
-      { assunto: 'Quem Somos: 30 Anos de Soluções que Geram Resultados', link: 'https://www.youtube.com/watch?v=CbRPiF0rdao' },
-    ],
-  },
-
-  BLOG_POST: {
-    titulo: 'Blog Post',
-    mensagem: 'Separei alguns conteúdos no nosso site que podem ajudar você a entender melhor as oportunidades e tomar uma decisão mais segura.',
-    // Lista completa (~280 posts) fica pesada pra UI — mantemos um recorte "evergreen"
-    // (não amarrado a datas/notícias do momento) por categoria. Blog não entra na matriz
-    // principal, é sempre oferecido como conteúdo extra.
-    itens: [
-      { categoria: 'Reforma Tributária', assunto: 'Reforma Tributária 2026: Guia Completo', link: 'https://grupostudio.com.br/noticia/reforma-tributaria-2026-guia-completo/' },
-      { categoria: 'Holding e Planejamento Patrimonial', assunto: 'LC 227/2026: Holding Familiar, ITCMD e Planejamento Patrimonial', link: 'https://grupostudio.com.br/noticia/lc-227-2026-holding-familiar-itcmd-valor-mercado-janela-sucessao/' },
-      { categoria: 'Fusões e Aquisições (M&A)', assunto: 'Due Diligence Tributária em M&A: checklist para o CFO', link: 'https://grupostudio.com.br/noticia/due-diligence-tributaria-ma-checklist-cfo-2026/' },
-      { categoria: 'Gestão Financeira e Crédito', assunto: 'Como usar créditos tributários para reduzir passivos e liberar caixa', link: 'https://grupostudio.com.br/noticia/usar-creditos-tributarios-reduzir-passivos-caixa/' },
-      { categoria: 'Agronegócio', assunto: 'PL 5122: Refinanciamento de Dívidas Rurais', link: 'https://grupostudio.com.br/noticia/pl-5122-refinanciamento-dividas-rurais-senado-2026-cfo/' },
-      { categoria: 'Estratégia Empresarial', assunto: 'Planejamento Tributário 2026', link: 'https://grupostudio.com.br/noticia/planejamento-tributario-2026/' },
-      { categoria: 'Tributário e Contencioso Fiscal', assunto: 'CARF acelera com IA: o que muda no contencioso para o CFO', link: 'https://grupostudio.com.br/noticia/carf-acelera-com-ia-o-que-muda-no-contencioso-para-o-cfo-em-2026/' },
-    ],
-  },
-
-  COMPARATIVO_CONCORRENCIA: {
-    titulo: 'Comparativo com Concorrência',
-    mensagem: 'Preparei um comparativo para mostrar, de forma clara, os diferenciais do Grupo Studio em relação ao mercado e ajudar você a avaliar a melhor decisão.',
-    tabela: {
-      colunas: ['Critério', 'Grupo Studio', 'Concorrente A', 'Concorrente B'],
-      linhas: [
-        ['Tempo de mercado', '30 anos', '16 anos', '15 anos'],
-        ['Portfólio', 'Mais de 40 soluções', 'Somente previdenciário', 'Somente tributário'],
-        ['Tecnologia', 'PJ360° (120+ fontes)', 'Não existe', 'Não existe'],
-        ['Glosas pela Receita Federal', 'Zero Glosas', 'Diversas', 'Indeterminado'],
-        ['Média de oportunidade', '3,5 milhões', '300 mil', '450 mil'],
-        ['Suporte', 'Completo, modulado para atender franqueados', 'Não faz parte do core business', 'Suporte comercial'],
-        ['Redes e unidades', '350 escritórios + 1 mil parceiros', '800 parceiros', '240 escritórios'],
-        ['Verticais de atuação', 'TAX - LEGAL - M&A - FINANCE - HOLDING - ENERGY - TECH', 'TAX previdenciário', 'TAX fiscal'],
-        ['Benefícios gerados', '16 bilhões', '7 bilhões', '10 bilhões'],
-        ['Clientes atendidos', '35 mil', '10 mil', '16 mil'],
-      ],
-    },
-  },
-
-  VIDEOS_JOSE_CARLOS: {
-    titulo: 'Vídeos José Carlos (CEO)',
-    mensagem: 'Estou enviando para você uma entrevista exclusiva com o CEO do Grupo Studio, onde ele compartilha sua visão, trajetória e o que está por trás dos resultados que entregamos todos os dias.',
-    itens: [
-      { assunto: 'História do Grupo Studio', link: 'https://www.youtube.com/watch?v=Xe3PlwCNBbs' },
-      { assunto: 'Visão de futuro para o Grupo Studio', link: 'https://www.youtube.com/watch?v=LbdrhN3UUH0' },
-      { assunto: 'Mensagem para quem pensa em entrar no ecossistema Grupo Studio', link: 'https://www.youtube.com/watch?v=g9YNgyL0qiY' },
-    ],
-  },
-
-  ONBOARDING_FRANQUEADO: {
-    titulo: 'Onboarding do Franqueado',
-    mensagem: 'Segue um vídeo que explica como funciona o onboarding dos franqueados Grupo Studio e mostra, de forma prática, como conduzimos essa etapa de integração, preparação e alinhamento para quem inicia conosco.',
-    // Marketing ainda não cadastrou o link desse vídeo na planilha (aba "ONBOARDING DO
-    // FRANQUEADO" só tem o assunto, coluna Link vazia) — sinalizar isso na UI em vez de
-    // quebrar.
-    itens: [
-      { nome: 'Onboarding Franqueado', link: null },
-    ],
-  },
-};
+export { MATERIALS } from './materials-data.js';
+import { MATERIALS } from './materials-data.js';
 
 // ============= ETAPAS (pipeline 62, Studio Fiscal Franquia) =============
 // Confirmado pelo usuário em 2026-07-10 (corrige a inferência inicial baseada só no
@@ -205,11 +23,15 @@ export const MATERIALS = {
 //   Aguardando FPQ (CC1 realizada) -> Oportunidade (FPQ recebida) -> Oportunidade
 //   Quente (CC2 agendada) -> Proposta (CC2 realizada) -> Negociação (pendente de CC3
 //   ou não) -> Aditivo Jurídico -> Contrato Enviado.
+//
+// As 4 etapas de Qualificação viraram 4 buckets distintos (lead/pre_qualificacao/
+// em_atendimento/mql) em vez de um "pre" único — usuário notou que "Lead" sempre
+// sugeria o mesmo conteúdo; cada uma agora tem sua própria progressão.
 export const STAGES = [
-  { id: 593, nome: 'LEAD', subtitulo: '', bucket: 'pre' },
-  { id: 594, nome: 'PRÉ-QUALIFICAÇÃO', subtitulo: 'tentativa de contato', bucket: 'pre' },
-  { id: 595, nome: 'EM ATENDIMENTO', subtitulo: 'retornou, ainda não qualificado', bucket: 'pre' },
-  { id: 596, nome: 'MQL FRANQUIA', subtitulo: 'qualificação realizada, CC1 agendada ou não', bucket: 'pre' },
+  { id: 593, nome: 'LEAD', subtitulo: '', bucket: 'lead' },
+  { id: 594, nome: 'PRÉ-QUALIFICAÇÃO', subtitulo: 'tentativa de contato', bucket: 'pre_qualificacao' },
+  { id: 595, nome: 'EM ATENDIMENTO', subtitulo: 'retornou, ainda não qualificado', bucket: 'em_atendimento' },
+  { id: 596, nome: 'MQL FRANQUIA', subtitulo: 'qualificação realizada, CC1 agendada ou não', bucket: 'mql' },
   { id: 597, nome: 'AGUARDANDO FPQ', subtitulo: 'CC1 realizada', bucket: 'sql' },
   { id: 598, nome: 'OPORTUNIDADE', subtitulo: 'FPQ recebida', bucket: 'oportunidade' },
   { id: 599, nome: 'OPORTUNIDADE QUENTE', subtitulo: 'CC2 agendada', bucket: 'oportunidade_quente' },
@@ -231,11 +53,25 @@ export const BUCKETS_SEM_ESTAGNACAO = new Set(['negociacao', 'aditivo_juridico',
 // Playbook de Expansão (Módulo 4 · Regras do Pipedrive) — únicas etapas com esse nível
 // de detalhe no PDF. Aditivo Jurídico e Contrato Enviado não têm checklist próprio no
 // playbook (ele as tratava como uma "Negociação" genérica); descrição mínima honesta
-// em vez de inventar portas que não existem na fonte.
+// em vez de inventar portas que não existem na fonte. As 4 etapas de qualificação
+// (lead/pre_qualificacao/em_atendimento/mql) são território da Qualificadora, sem
+// checklist de reunião do closer — só descrição.
 export const PLAYBOOK_ETAPAS = {
-  pre: {
-    nome: 'Pré-SQL (Qualificadora)',
-    descricao: 'Lead ainda em qualificação pela Qualificadora, antes do repasse pro closer.',
+  lead: {
+    nome: 'Lead',
+    descricao: 'Lead recém-capturado, ainda não contatado pela Qualificadora.',
+  },
+  pre_qualificacao: {
+    nome: 'Pré-qualificação',
+    descricao: 'Tentativa de contato em andamento pela Qualificadora.',
+  },
+  em_atendimento: {
+    nome: 'Em Atendimento',
+    descricao: 'Lead retornou o contato, mas ainda não foi qualificado.',
+  },
+  mql: {
+    nome: 'MQL Franquia',
+    descricao: 'Qualificação realizada — CC1 pode estar agendada ou não.',
   },
   sql: {
     nome: 'Aguardando FPQ',
@@ -382,15 +218,99 @@ export const SEGMENTO_POR_PERSONA = {
   empresario: 'Empresário',
 };
 
+// ============= PERFIL DA CARTEIRA DE CLIENTES =============
+// Filtro adicional (2026-07-14, pedido do usuário): que tipo de cliente o lead já
+// atende hoje (ou "ainda não tem carteira"). Usado pra: (1) priorizar Cases de Sucesso/
+// Depoimentos do mesmo segmento da carteira dele, tornando a prova social mais
+// relevante; (2) reforçar com material institucional/comparativo quando ele ainda não
+// tem carteira (prova social por segmento não faz sentido nesse caso).
+export const CARTEIRAS = [
+  { id: 'sem_clientes', label: 'Ainda não tem carteira de clientes' },
+  { id: 'industria', label: 'Indústria' },
+  { id: 'comercio', label: 'Comércio / Varejo' },
+  { id: 'agro', label: 'Agronegócio' },
+  { id: 'produtor_rural', label: 'Produtor Rural' },
+  { id: 'servicos', label: 'Serviços' },
+  { id: 'pf', label: 'Pessoa Física (PF)' },
+];
+
+// Palavras-chave que casam com o campo `segmento` de CASES_DE_SUCESSO/DEPOIMENTO_FRANQUEADOS.
+// Nenhum case da planilha hoje é de Pessoa Física (PF) — todos são PJ com faturamento —
+// então "pf" fica sem palavra-chave própria (ver `ajustarPorCarteira`, que troca Cases
+// por Depoimentos nesse caso, já que há depoimentos de pessoas físicas individuais).
+export const CARTEIRA_SEGMENTO_KEYWORDS = {
+  industria: ['Indústria'],
+  comercio: ['Varejista', 'Atacadista', 'Supermercado', 'Comércio', 'Concessionária', 'Autopeças', 'Pet Shop'],
+  agro: ['Agrícola', 'Agroindústria'],
+  produtor_rural: ['Agrícola', 'Agroindústria'],
+  servicos: ['Serviços', 'Serviço', 'Transportadora', 'Hospitalar', 'Tecnologia'],
+  pf: [],
+};
+
+/**
+ * Combina as palavras-chave de segmento da persona + carteira escolhidas, pra priorizar
+ * itens de CASES_DE_SUCESSO/DEPOIMENTO_FRANQUEADOS que casem com qualquer uma delas.
+ * @param {string|null} personaId
+ * @param {string|null} carteiraId
+ * @returns {string[]}
+ */
+export function segmentoKeywords(personaId, carteiraId) {
+  const kws = [];
+  if (carteiraId && CARTEIRA_SEGMENTO_KEYWORDS[carteiraId]) kws.push(...CARTEIRA_SEGMENTO_KEYWORDS[carteiraId]);
+  if (personaId && SEGMENTO_POR_PERSONA[personaId]) kws.push(SEGMENTO_POR_PERSONA[personaId]);
+  return kws;
+}
+
+/**
+ * Ajusta a lista de materiais sugeridos conforme a carteira de clientes do lead:
+ * - sem carteira ainda: prova social por segmento não faz sentido — reforça com
+ *   Atestado de Capacidade + Comparativo (credibilidade institucional/diferencial).
+ * - PF: nenhum Case de Sucesso da planilha é pessoa física (todos têm faturamento de
+ *   empresa) — troca Cases de Sucesso por Depoimento de Franqueados, que tem
+ *   depoimentos de pessoas físicas individuais (advogados, jornalista, engenheiro).
+ * @param {string[]} materiaisKeys
+ * @param {string|null} carteiraId
+ * @returns {string[]}
+ */
+export function ajustarPorCarteira(materiaisKeys, carteiraId) {
+  let out = [...materiaisKeys];
+  if (carteiraId === 'sem_clientes') {
+    out = [...out, 'ATESTADO_CAPACIDADE', 'COMPARATIVO_CONCORRENCIA'];
+  } else if (carteiraId === 'pf') {
+    out = out.map(k => (k === 'CASES_DE_SUCESSO' ? 'DEPOIMENTO_FRANQUEADOS' : k));
+  }
+  return [...new Set(out)];
+}
+
 // ============= MATRIZ etapa (bucket) x persona -> materiais sugeridos =============
-// Proposta inicial (2026-07-10, revisada com o Playbook de Expansão) — ajustar conforme
-// feedback real dos closers.
+// Proposta inicial (2026-07-10, revisada com o Playbook de Expansão; ampliada em
+// 2026-07-14 pra diversificar as etapas de qualificação — antes todas caíam no mesmo
+// "pre" e sugeriam sempre Vídeo Institucional) — ajustar conforme feedback real dos
+// closers.
 export const RECOMMENDATIONS = {
-  pre: {
+  lead: {
     advogado: ['VIDEO_INSTITUCIONAL'],
     contador: ['VIDEO_INSTITUCIONAL'],
     bancario: ['VIDEO_INSTITUCIONAL'],
     empresario: ['VIDEO_INSTITUCIONAL'],
+  },
+  pre_qualificacao: {
+    advogado: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
+    contador: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
+    bancario: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
+    empresario: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
+  },
+  em_atendimento: {
+    advogado: ['BLOG_POST', 'EBOOK'],
+    contador: ['BLOG_POST', 'EBOOK'],
+    bancario: ['COMPARATIVO_CONCORRENCIA', 'VIDEO_INSTITUCIONAL'],
+    empresario: ['COMPARATIVO_CONCORRENCIA', 'CASES_DE_SUCESSO'],
+  },
+  mql: {
+    advogado: ['EBOOK', 'CASES_DE_SUCESSO'],
+    contador: ['EBOOK', 'ATESTADO_CAPACIDADE'],
+    bancario: ['COMPARATIVO_CONCORRENCIA', 'DEPOIMENTO_PARCEIROS'],
+    empresario: ['CASES_DE_SUCESSO', 'COMPARATIVO_CONCORRENCIA'],
   },
   sql: {
     advogado: ['VIDEO_INSTITUCIONAL', 'EBOOK'],
@@ -452,16 +372,17 @@ export const REFORCO_ESTAGNACAO = {
  * @param {number} stageId
  * @param {string} personaId
  * @param {number} diasParado
+ * @param {string|null} [carteiraId]
  * @returns {{ materiais: string[], estagnado: boolean, motivo: string }}
  */
-export function recomendar(stageId, personaId, diasParado) {
+export function recomendar(stageId, personaId, diasParado, carteiraId = null) {
   const stage = STAGE_BY_ID[stageId];
   if (!stage) throw new Error(`Etapa desconhecida: ${stageId}`);
   const base = RECOMMENDATIONS[stage.bucket]?.[personaId] ?? [];
   const estagnado = !BUCKETS_SEM_ESTAGNACAO.has(stage.bucket) && diasParado > LIMIAR_DIAS_ESTAGNADO;
   const materiais = estagnado ? [REFORCO_ESTAGNACAO[personaId], ...base] : base;
   return {
-    materiais: [...new Set(materiais)],
+    materiais: ajustarPorCarteira([...new Set(materiais)], carteiraId),
     estagnado,
     motivo: estagnado
       ? `${diasParado} dias parado em "${stage.nome}" (acima do limiar de ${LIMIAR_DIAS_ESTAGNADO}) — reforço de prova social`

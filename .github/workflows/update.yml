@@ -1,0 +1,37 @@
+name: Sincronizar materiais da planilha
+
+on:
+  schedule:
+    # A cada 30 min em dias úteis, 08:00–19:30 BRT (11:00–22:30 UTC) — mesma cadência
+    # dos outros painéis do Grupo Studio.
+    - cron: '*/30 11-22 * * 1-5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install -r requirements.txt
+
+      - run: python3 build_materiais.py
+
+      - name: Commit e push se algo mudou
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add materials-data.js
+          if git diff --cached --quiet; then
+            echo "Sem mudanças na planilha."
+          else
+            git commit -m "Sincroniza materiais da planilha ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git push
+          fi

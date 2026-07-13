@@ -4,15 +4,16 @@
 // pra configurar — ver memória do projeto). Estática, sem servidor, mesmo padrão dos
 // outros painéis do Grupo Studio (GitHub Pages).
 import {
-  MATERIALS, STAGES, STAGE_BY_ID, PERSONAS, RECOMMENDATIONS, LIMIAR_DIAS_ESTAGNADO,
-  REFORCO_ESTAGNACAO, PLAYBOOK_ETAPAS, SEGMENTO_POR_PERSONA, CADENCIA, BUCKETS_SEM_ESTAGNACAO,
-  recomendar, cadenciaAtual,
+  MATERIALS, STAGES, STAGE_BY_ID, PERSONAS, CARTEIRAS, PLAYBOOK_ETAPAS, CADENCIA,
+  recomendar, cadenciaAtual, segmentoKeywords,
 } from './materiais.js';
 
 let stageIdAtual = null;
 let personaAtual = null;
+let carteiraAtual = null;
 
 const etapaSelect = document.getElementById('etapaSelect');
+const carteiraSelect = document.getElementById('carteiraSelect');
 const diasParadoEl = document.getElementById('diasParado');
 const diasReuniaoEl = document.getElementById('diasReuniao');
 const nomeLeadEl = document.getElementById('nomeLead');
@@ -29,8 +30,19 @@ for (const stage of STAGES) {
   etapaSelect.appendChild(opt);
 }
 
+for (const carteira of CARTEIRAS) {
+  const opt = document.createElement('option');
+  opt.value = carteira.id;
+  opt.textContent = carteira.label;
+  carteiraSelect.appendChild(opt);
+}
+
 etapaSelect.addEventListener('change', () => {
   stageIdAtual = etapaSelect.value ? Number(etapaSelect.value) : null;
+  renderTudo();
+});
+carteiraSelect.addEventListener('change', () => {
+  carteiraAtual = carteiraSelect.value || null;
   renderTudo();
 });
 diasParadoEl.addEventListener('input', renderTudo);
@@ -123,7 +135,7 @@ function renderCadenciaItem(item, ativo) {
 function renderRecomendacao() {
   if (stageIdAtual == null || !personaAtual) { recomendacaoEl.innerHTML = ''; return; }
   const diasParado = diasParadoEl.value === '' ? 0 : Number(diasParadoEl.value);
-  const { materiais, motivo } = recomendar(stageIdAtual, personaAtual, diasParado);
+  const { materiais, motivo } = recomendar(stageIdAtual, personaAtual, diasParado, carteiraAtual);
   if (!materiais.length) { recomendacaoEl.innerHTML = '<div class="vazio">Sem sugestão pra essa combinação ainda.</div>'; return; }
   let html = '<h2>🎯 Material sugerido</h2><div class="motivo">' + escapeHtml(motivo) + '</div>';
   for (const key of materiais) {
@@ -145,18 +157,24 @@ function renderMaterialCard(key, mat) {
     '</div>';
 }
 
-// Se a persona escolhida tem um segmento correspondente (advogado/empresário casam
-// com o campo "segmento" dos depoimentos), mostra esses primeiro.
+// Prioriza itens cujo campo "segmento" case com a carteira de clientes e/ou a persona
+// escolhidas (ex: carteira "Indústria" + Cases de Sucesso -> mostra primeiro os cases
+// de empresas industriais) — deixa a prova social mais relevante pro lead específico.
+const MATERIAIS_COM_SEGMENTO = new Set(['CASES_DE_SUCESSO', 'DEPOIMENTO_FRANQUEADOS']);
+
 function renderItensLinks(mat, materialKey) {
   if (!mat.itens) return '';
   let itens = mat.itens;
-  const filtro = personaAtual && SEGMENTO_POR_PERSONA[personaAtual];
-  if (filtro && materialKey === 'DEPOIMENTO_FRANQUEADOS') {
+  const keywords = segmentoKeywords(personaAtual, carteiraAtual);
+  if (keywords.length && MATERIAIS_COM_SEGMENTO.has(materialKey)) {
     itens = [...itens].sort((a, b) => {
-      const am = (a.segmento || '').includes(filtro) ? 0 : 1;
-      const bm = (b.segmento || '').includes(filtro) ? 0 : 1;
+      const am = keywords.some(k => (a.segmento || '').includes(k)) ? 0 : 1;
+      const bm = keywords.some(k => (b.segmento || '').includes(k)) ? 0 : 1;
       return am - bm;
     });
+  } else if (materialKey === 'BLOG_POST') {
+    // Sem segmento pra priorizar — embaralha pra não mostrar sempre os mesmos 6 posts.
+    itens = [...itens].sort(() => Math.random() - 0.5);
   }
   return '<div class="material-links">' + itens.slice(0, 6).map(item => {
     const nome = item.nome || item.assunto || [item.local, item.segmento].filter(Boolean).join(' — ') || 'Material';
