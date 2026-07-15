@@ -6,7 +6,7 @@
 import {
   MATERIALS, STAGES, STAGE_BY_ID, PERSONAS, CARTEIRAS, PLAYBOOK_ETAPAS, CADENCIA,
   recomendar, cadenciaAtual, segmentoKeywords, blogCategoriaKeywords, ebookPalavraChave, gerarMensagem,
-} from './materiais.js';
+} from './materiais.js?v=1784140243';
 
 let stageIdAtual = null;
 let personaAtual = null;

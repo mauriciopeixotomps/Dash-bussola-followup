@@ -6,8 +6,8 @@
  * é adicionada — ver .github/workflows/update.yml). Este arquivo aqui é escrito à mão e
  * não é sobrescrito pelo sync.
  */
-export { MATERIALS } from './materials-data.js';
-import { MATERIALS } from './materials-data.js';
+export { MATERIALS } from './materials-data.js?v=1784140243';
+import { MATERIALS } from './materials-data.js?v=1784140243';
 
 // ============= ETAPAS (pipeline 62, Studio Fiscal Franquia) =============
 // Confirmado pelo usuário em 2026-07-10 (corrige a inferência inicial baseada só no
@@ -324,12 +324,15 @@ export function ebookPalavraChave(personaId) {
 }
 
 /**
- * Ajusta a lista de materiais sugeridos conforme a carteira de clientes do lead:
- * - sem carteira ainda: prova social por segmento não faz sentido — reforça com
- *   Atestado de Capacidade + Comparativo (credibilidade institucional/diferencial).
- * - PF: nenhum Case de Sucesso da planilha é pessoa física (todos têm faturamento de
- *   empresa) — troca Cases de Sucesso por Depoimento de Franqueados, que tem
- *   depoimentos de pessoas físicas individuais (advogados, jornalista, engenheiro).
+ * Ajusta a lista de materiais sugeridos conforme a carteira de clientes do lead. Antes
+ * (até 2026-07-14) só mexia em `sem_clientes`/`pf` — pras outras opções (Indústria,
+ * Comércio, Agro, Produtor Rural, Serviços), se a etapa/persona já não incluísse Cases
+ * de Sucesso por padrão, escolher essas carteiras não mudava NADA visível na tela
+ * (só reordenava itens dentro de uma categoria que talvez nem aparecesse) — a equipe
+ * reportou exatamente isso: "trocando as variáveis, sugere os mesmos conteúdos".
+ * Agora, qualquer carteira específica (menos "não informado") força a entrada de um
+ * Case de Sucesso do segmento certo na lista, garantindo que o filtro sempre produza
+ * uma mudança visível, em qualquer etapa.
  * @param {string[]} materiaisKeys
  * @param {string|null} carteiraId
  * @returns {string[]}
@@ -340,6 +343,9 @@ export function ajustarPorCarteira(materiaisKeys, carteiraId) {
     out = [...out, 'ATESTADO_CAPACIDADE', 'COMPARATIVO_CONCORRENCIA'];
   } else if (carteiraId === 'pf') {
     out = out.map(k => (k === 'CASES_DE_SUCESSO' ? 'DEPOIMENTO_FRANQUEADOS' : k));
+    if (!out.includes('DEPOIMENTO_FRANQUEADOS')) out = ['DEPOIMENTO_FRANQUEADOS', ...out];
+  } else if (carteiraId) {
+    if (!out.includes('CASES_DE_SUCESSO')) out = ['CASES_DE_SUCESSO', ...out];
   }
   return [...new Set(out)];
 }
@@ -445,8 +451,8 @@ export const RECOMMENDATIONS = {
   pre_qualificacao: {
     advogado: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
     contador: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
-    bancario: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
-    empresario: ['VIDEO_INSTITUCIONAL', 'BLOG_POST'],
+    bancario: ['VIDEO_INSTITUCIONAL', 'CASES_DE_SUCESSO'],
+    empresario: ['VIDEO_INSTITUCIONAL', 'CASES_DE_SUCESSO'],
   },
   em_atendimento: {
     advogado: ['BLOG_POST', 'EBOOK'],
