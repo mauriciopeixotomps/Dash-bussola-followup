@@ -20,6 +20,10 @@ export const MATERIALS = {
       {
         "nome": "LEI DO BEM",
         "link": "https://drive.google.com/file/d/1nHuHlssxFPUfTvxqlw_mx2Zu2RO4H0J1/view?usp=sharing"
+      },
+      {
+        "nome": "A REFORMA TRIBUTÁRIA NO CAMPO: O NOVO PREÇO DE PRODUZIR",
+        "link": "https://drive.google.com/file/d/1sigYQEu7qMnkSH6nawt2bvDqRBcOmBax/view"
       }
     ]
   },
