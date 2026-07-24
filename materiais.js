@@ -6,8 +6,8 @@
  * é adicionada — ver .github/workflows/update.yml). Este arquivo aqui é escrito à mão e
  * não é sobrescrito pelo sync.
  */
-export { MATERIALS } from './materials-data.js?v=1784140243';
-import { MATERIALS } from './materials-data.js?v=1784140243';
+export { MATERIALS } from './materials-data.js?v=1784896665';
+import { MATERIALS } from './materials-data.js?v=1784896665';
 
 // ============= ETAPAS (pipeline 62, Studio Fiscal Franquia) =============
 // Confirmado pelo usuário em 2026-07-10 (corrige a inferência inicial baseada só no
@@ -246,6 +246,40 @@ export const CARTEIRA_SEGMENTO_KEYWORDS = {
   servicos: ['Serviços', 'Serviço', 'Transportadora', 'Hospitalar', 'Tecnologia'],
   pf: [],
 };
+
+// ============= ORIGEM DO LEAD (inbound x outbound) =============
+// Filtro pedido pelo usuário em 2026-07-14 — muda bastante a abordagem: outbound (fomos
+// atrás do lead, ele não pediu contato) precisa construir contexto/credibilidade antes
+// de ir fundo; inbound (o lead procurou a gente) já demonstrou interesse, dá pra pular a
+// introdução institucional genérica. Só importa nas etapas iniciais (pré-CC1/logo depois
+// da CC1) — da Oportunidade Quente em diante o funil já convergiu independente de como o
+// lead chegou.
+export const ORIGENS = [
+  { id: 'inbound', label: 'Inbound', subtitulo: 'o lead procurou a gente' },
+  { id: 'outbound', label: 'Outbound', subtitulo: 'fomos atrás do lead' },
+];
+
+const BUCKETS_ONDE_ORIGEM_IMPORTA = new Set(['lead', 'pre_qualificacao', 'em_atendimento', 'mql', 'sql']);
+
+/**
+ * @param {string[]} materiaisKeys
+ * @param {string|null} origemId
+ * @param {string} stageBucket
+ * @returns {string[]}
+ */
+export function ajustarPorOrigem(materiaisKeys, origemId, stageBucket) {
+  if (!origemId || !BUCKETS_ONDE_ORIGEM_IMPORTA.has(stageBucket)) return materiaisKeys;
+  let out = [...materiaisKeys];
+  if (origemId === 'outbound') {
+    // Lead frio, não pediu contato — garante uma base institucional antes de ir fundo.
+    if (!out.includes('VIDEO_INSTITUCIONAL')) out = ['VIDEO_INSTITUCIONAL', ...out];
+  } else if (origemId === 'inbound') {
+    // Já demonstrou interesse por conta própria — pula a introdução genérica.
+    out = out.filter(k => k !== 'VIDEO_INSTITUCIONAL');
+    if (!out.length) out = ['CASES_DE_SUCESSO'];
+  }
+  return [...new Set(out)];
+}
 
 /**
  * Combina as palavras-chave de segmento da persona + carteira escolhidas, pra priorizar
@@ -529,18 +563,23 @@ export const REFORCO_ESTAGNACAO = {
  * @param {string|null} [carteiraId]
  * @returns {{ materiais: string[], estagnado: boolean, motivo: string }}
  */
-export function recomendar(stageId, personaId, diasParado, carteiraId = null) {
+export function recomendar(stageId, personaId, diasParado, carteiraId = null, origemId = null) {
   const stage = STAGE_BY_ID[stageId];
   if (!stage) throw new Error(`Etapa desconhecida: ${stageId}`);
   const base = RECOMMENDATIONS[stage.bucket]?.[personaId] ?? [];
   const estagnado = !BUCKETS_SEM_ESTAGNACAO.has(stage.bucket) && diasParado > LIMIAR_DIAS_ESTAGNADO;
-  const materiais = estagnado ? [REFORCO_ESTAGNACAO[personaId], ...base] : base;
+  let materiais = estagnado ? [REFORCO_ESTAGNACAO[personaId], ...base] : base;
+  materiais = ajustarPorCarteira([...new Set(materiais)], carteiraId);
+  materiais = ajustarPorOrigem(materiais, origemId, stage.bucket);
+  const origemNota = origemId && BUCKETS_ONDE_ORIGEM_IMPORTA.has(stage.bucket)
+    ? ` · lead ${origemId === 'outbound' ? 'outbound (frio)' : 'inbound'}`
+    : '';
   return {
-    materiais: ajustarPorCarteira([...new Set(materiais)], carteiraId),
+    materiais: [...new Set(materiais)],
     estagnado,
-    motivo: estagnado
+    motivo: (estagnado
       ? `${diasParado} dias parado em "${stage.nome}" (acima do limiar de ${LIMIAR_DIAS_ESTAGNADO}) — reforço de prova social`
-      : `Etapa "${stage.nome}", ${diasParado} dias`,
+      : `Etapa "${stage.nome}", ${diasParado} dias`) + origemNota,
   };
 }
 

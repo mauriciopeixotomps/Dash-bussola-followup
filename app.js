@@ -4,13 +4,14 @@
 // pra configurar — ver memória do projeto). Estática, sem servidor, mesmo padrão dos
 // outros painéis do Grupo Studio (GitHub Pages).
 import {
-  MATERIALS, STAGES, STAGE_BY_ID, PERSONAS, CARTEIRAS, PLAYBOOK_ETAPAS, CADENCIA,
+  MATERIALS, STAGES, STAGE_BY_ID, PERSONAS, CARTEIRAS, ORIGENS, PLAYBOOK_ETAPAS, CADENCIA,
   recomendar, cadenciaAtual, segmentoKeywords, blogCategoriaKeywords, ebookPalavraChave, gerarMensagem,
-} from './materiais.js?v=1784140243';
+} from './materiais.js?v=1784896665';
 
 let stageIdAtual = null;
 let personaAtual = null;
 let carteiraAtual = null;
+let origemAtual = null;
 
 const etapaSelect = document.getElementById('etapaSelect');
 const carteiraSelect = document.getElementById('carteiraSelect');
@@ -18,6 +19,7 @@ const diasParadoEl = document.getElementById('diasParado');
 const diasReuniaoEl = document.getElementById('diasReuniao');
 const nomeLeadEl = document.getElementById('nomeLead');
 const etapaGuiaEl = document.getElementById('etapaGuia');
+const origemGridEl = document.getElementById('origemGrid');
 const perfilGridEl = document.getElementById('perfilGrid');
 const personaInfoEl = document.getElementById('personaInfo');
 const cadenciaCardEl = document.getElementById('cadenciaCard');
@@ -48,6 +50,19 @@ carteiraSelect.addEventListener('change', () => {
 diasParadoEl.addEventListener('input', renderTudo);
 diasReuniaoEl.addEventListener('input', renderCadencia);
 nomeLeadEl.addEventListener('input', () => { renderTudo(); renderCadencia(); });
+
+for (const origem of ORIGENS) {
+  const btn = document.createElement('button');
+  btn.className = 'perfil-btn';
+  btn.innerHTML = escapeHtml(origem.label) + '<span class="perfil-sub">' + escapeHtml(origem.subtitulo) + '</span>';
+  btn.onclick = () => {
+    origemAtual = origem.id;
+    for (const b of origemGridEl.querySelectorAll('.perfil-btn')) b.classList.remove('ativo');
+    btn.classList.add('ativo');
+    renderTudo();
+  };
+  origemGridEl.appendChild(btn);
+}
 
 for (const persona of PERSONAS) {
   const btn = document.createElement('button');
@@ -135,7 +150,7 @@ function renderCadenciaItem(item, ativo) {
 function renderRecomendacao() {
   if (stageIdAtual == null || !personaAtual) { recomendacaoEl.innerHTML = ''; return; }
   const diasParado = diasParadoEl.value === '' ? 0 : Number(diasParadoEl.value);
-  const { materiais, motivo } = recomendar(stageIdAtual, personaAtual, diasParado, carteiraAtual);
+  const { materiais, motivo } = recomendar(stageIdAtual, personaAtual, diasParado, carteiraAtual, origemAtual);
   if (!materiais.length) { recomendacaoEl.innerHTML = '<div class="vazio">Sem sugestão pra essa combinação ainda.</div>'; return; }
   let html = '<h2>🎯 Material sugerido</h2><div class="motivo">' + escapeHtml(motivo) + '</div>';
   for (const key of materiais) {
